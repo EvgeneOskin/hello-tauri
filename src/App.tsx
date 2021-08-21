@@ -1,15 +1,14 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import logo from './logo.svg'
+import './App.css'
+import { Hello } from './hello'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <Hello />
+        <img src={logo} className="App-logo rotate" alt="logo" />
         <a
           className="App-link"
           href="https://reactjs.org"
@@ -18,9 +17,12 @@ function App() {
         >
           Learn React
         </a>
+        <p>
+          Edit <code>src/App.tsx</code> and save to reload.
+        </p>
       </header>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
