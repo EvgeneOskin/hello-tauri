@@ -1,13 +1,15 @@
 import React from 'react'
 import logo from './logo.svg'
 import './App.css'
-import { Hello } from './hello'
+import { TauriBridge } from './TauriBridge'
+import { TitleBar } from './Titlebar'
 
 function App() {
   return (
     <div className="App">
+      <TitleBar />
       <header className="App-header">
-        <Hello />
+        <TauriBridge />
         <img src={logo} className="App-logo rotate" alt="logo" />
         <a
           className="App-link"

@@ -3,7 +3,11 @@
   windows_subsystem = "mac"
 )]
 
-use tauri::Manager;
+use std::time::Duration;
+
+use async_std::task;
+
+use tauri::{Manager, Window};
 
 #[derive(serde::Serialize)]
 struct Payload {
@@ -17,11 +21,20 @@ struct InvokeMessageResponse {
 }
 
 #[tauri::command(async)]
-fn my_hello_command(invoke_message: String) -> InvokeMessageResponse {
+async fn my_hello_command(window: Window, callback_stream_id: String, invoke_message: String) {
   println!("I was invoked from JS! {}", invoke_message);
-  InvokeMessageResponse {
-    message: "It's a test".into(),
-    other_val: 42,
+  let callback_name = format!("callback-{}", callback_stream_id);
+  for i in 1..100 {
+    task::sleep(Duration::from_secs(1)).await;
+    window
+      .emit(
+        &callback_name,
+        InvokeMessageResponse {
+          message: "It's a test".into(),
+          other_val: i,
+        },
+      )
+      .unwrap();
   }
 }
 
