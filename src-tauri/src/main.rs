@@ -21,7 +21,7 @@ struct InvokeMessageResponse {
 }
 
 #[tauri::command(async)]
-async fn my_hello_command(window: Window, callback_stream_id: String, invoke_message: String) {
+async fn start_stream(window: Window, callback_stream_id: String, invoke_message: String) {
   println!("I was invoked from JS! {}", invoke_message);
   let callback_name = format!("callback-{}", callback_stream_id);
   for i in 1..100 {
@@ -40,7 +40,7 @@ async fn my_hello_command(window: Window, callback_stream_id: String, invoke_mes
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![my_hello_command])
+    .invoke_handler(tauri::generate_handler![start_stream])
     .setup(|app| {
       let main_window = app.get_window("main").unwrap();
 

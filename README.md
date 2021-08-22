@@ -1,46 +1,64 @@
-# Getting Started with Create React App
+# Hello Tauri
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a "hello world" project for trying [Tauri](https://tauri.studio/) with React Frontend created from [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## What's inside
 
-In the project directory, you can run:
+The frameless desktop app that sends messages from the webview window to the Rust backend.
+The app implements [Hermit](https://tauri.studio/en/docs/usage/patterns/hermit) tauri parttern.
+The app contains several types of messages:
 
-### `npm start`
+- async `invoke` that calls a Rust function – command - from the JS code;
+- send an `event` with a Serialized payload from a Rust to JS windows;
+- stream events by an id from the Rust function to JS-based.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The stream events are not build in Tauri so it's implemented in a following way:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```typescript
+async function startStream() {
+  const id = uuidv4()
+  const unlisten = await listen(`callback-${id}`, (event: any) => {
+    console.log(`events–${id}`, event)
+  })
 
-### `npm test`
+  console.log(await invoke('start_stream', {
+    invokeMessage: 'Hello!',
+    callbackStreamId: id,
+  }))
+  unlisten()
+}
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```rust
+#[tauri::command(async)]
+async fn start_stream(window: Window, callback_stream_id: String, invoke_message: String) {
+  println!("I was invoked from JS! {}", invoke_message);
+  let callback_name = format!("callback-{}", callback_stream_id);
+  for i in 1..100 {
+    task::sleep(Duration::from_secs(1)).await;
+    window
+      .emit(
+        &callback_name,
+        InvokeMessageResponse {
+          message: "It's a test".into(),
+          other_val: i,
+        },
+      )
+      .unwrap();
+  }
+}
+```
 
-### `npm run build`
+Tauri codebase that works as a backend is in `src-tauiri`.
+Rust codebase that works as a frontend is in `src`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Scripts
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The project has a new `tauri` script in addition to the usual Create React App scripts.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+$ npm run tauri dev
+# Build and watch dev Create React App and dev tauri app
+$ npm run tauri build
+# Build dev Create React App and dev tauri app
+```
