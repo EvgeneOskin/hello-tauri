@@ -10,7 +10,7 @@ The app contains several types of messages:
 
 - async `invoke` that calls a Rust function – command - from the JS code;
 - send an `event` with a Serialized payload from a Rust to JS windows;
-- stream events by an id from the Rust function to JS-based.
+- async stream events by an id from the Rust function to JS-based.
 
 The stream events are not build in Tauri so it's implemented in a following way:
 
